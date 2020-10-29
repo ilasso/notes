@@ -1,0 +1,25 @@
+sudo docker ps -a # permite ver los containers 
+sudo docker run -p 4000:80 nginx #crea container server nginx en pto 4000
+sudo docker search ubuntu # busca todas las images q existen de ubuntu para descargar
+
+sudo docker images # despliea todas las imagenes disponibles para hacer cointainers
+
+sudo docker start <id container> # inicia un container
+sudo docker stop   <id container> # para un container
+
+sudo docker rm <id container> # elimina un container
+
+sudo docker run -it <id container> bash # crea un container y entra al CLI
+
+sudo docker run -it nginx bash
+
+sudo docker exec -it <id container> bash #entra al container
+
+# coloca un index.html en el docker
+
+echo "hola mundo">index.htm
+
+sudo docker run -d -p 5000:80 --name amohbtn -v $(pwd):/usr/share/nginx/html nginx
+
+
+#investigar sudo docker commit y sudo docker push para publicar el docker file a la cuenta de docker

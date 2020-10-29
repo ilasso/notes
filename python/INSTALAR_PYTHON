@@ -1,0 +1,31 @@
+Instalar Python 3 en Ubuntu 18 o Debian
+
+[server]$ cd ~
+[server]$ mkdir tmp
+[server]$ cd tmp
+[server]$ wget https://www.python.org/ftp/python/3.8.1/Python-3.8.1.tgz
+[server]$ tar zxvf Python-3.8.1.tgz 
+[server]$ cd Python-3.8.1 
+[server]$ ./configure --prefix=$HOME/opt/python-3.8.1
+[server]$ make
+[server]$ make install
+
+
+
+[server]$ cd ~
+
+export PATH=$HOME/opt/python-3.8.1/bin:$PATH ..SOLO SI SE QUIERE LLAMAR DE DONDE SEA
+
+
+
+[server]$ . ~/.bash_profile
+
+
+
+
+
+[server]$ which python3
+/home/username/opt/python-3.8.1/bin/python3
+
+
+[server]$ python3 --version
