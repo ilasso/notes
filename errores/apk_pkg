@@ -1,0 +1,7 @@
+--cuando sale ModuleNotFoundError: No module named 'apt_pkg'
+en varios comandos en ubuntu 18.04
+
+sudo apt remove python3-apt
+sudo apt autoremove
+sudo apt autoclean
+sudo apt install python3-apt
