@@ -1,0 +1,25 @@
+{
+  "name": "webpack-4",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack --entry ./index.js --output ./bundle.js --mode development",
+    "build:local": "webpack --mode production",
+    "build:external": "webpack --config ./external/webpack.config.js",
+    "build:multi": "webpack --config ./multi-entrypoint/webpack.config.js",
+    "build:css": "webpack --config ./css-style-loader/webpack.config.js"
+  },
+  "keywords": [
+    "webpack"
+  ],
+  "author": "@ilasso",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "css-loader": "5.0.2",
+    "style-loader": "2.0.0",
+    "webpack": "5.21.2",
+    "webpack-cli": "4.5.0"
+  }
+}
