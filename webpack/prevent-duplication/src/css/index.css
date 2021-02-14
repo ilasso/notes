@@ -1,0 +1,19 @@
+@font-face {
+  font-family: 'open_sansregular';
+  src: url('../fonts/OpenSans-Regular-webfont.eot')
+}
+
+
+body {
+    background: lightskyblue;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin:0;
+    font-size: 40px;
+    font-family: 'open_sansregular';
+    color: white;
+    text-shadow: 1px 1px 1px black;
+  }
+
