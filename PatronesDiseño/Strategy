@@ -1,0 +1,115 @@
+Behavioral pattern:
+
+Strategy pattern:
+
+"Define a family of algorithms, encapsulate each one, and make then interchangeable. Strategy lets
+the algorithm vary independently from clients that use it"
+
+"Definir una familia de algoritmos, encapsular cada uno y hacerlos intercambiables. La estrategia permite
+el algoritmo varía independientemente de los clientes que lo utilizan"
+
+
+index.js:
+var logger = require('./Logger');
+
+logger.log('Hello World');
+logger.log('Hi World');
+logger.log('Yo World');
+
+logger.changeStrategy('none');
+
+logger.log('Hello World');
+logger.log('Hi World');
+logger.log('Yo World');
+
+Logger.js
+
+var LogStrategy = require('./LogStrategy');
+var config = require('./config');
+
+class Logger {
+
+    constructor(strategy='toConsole') {
+        console.log(strategy)
+        this.logs = [];
+        this.strategy = LogStrategy[strategy];
+        
+    }
+
+    get count() {
+        return this.logs.length
+    }
+
+    changeStrategy(newStrategy) {
+        this.strategy = LogStrategy[newStrategy];
+    }
+
+    log(message) {
+        const timestamp = new Date().toISOString()
+        this.logs.push({ message, timestamp })
+        this.strategy(timestamp, message);
+    }
+
+}
+
+module.exports = new Logger(config.logs.strategy);
+
+LogStrategy.js:
+
+var path = require('path');
+var { appendFile } = require('fs');
+var morse = require('morse');
+
+class LogStrategy {
+
+    static toMorseCode(timestamp, message) {
+        var morseCode = morse.encode(message);
+        console.log(morseCode);
+    }
+
+    static noDate(timestamp, message) {
+        console.log(message);
+    }
+
+    static toFile(timestamp, message) {
+        var fileName = path.join(__dirname, 'logs.txt');
+        appendFile(fileName, `${timestamp} - ${message} \n`, error => {
+            if (error) {
+                console.log('Error writing to file');
+                console.error(error);
+            }
+        })
+    }
+
+    static toConsole(timestamp, message) {
+        console.log(`${timestamp} - ${message}`);
+    }
+
+    static none() {
+
+    }
+
+}
+
+module.exports = LogStrategy;
+
+
+config.json:
+{
+   "logs": {
+      "strategy": "toConsole"
+   }
+}
+
+
+output:
+
+2021-03-12T18:15:47.513Z - Hello World
+2021-03-12T18:15:47.513Z - Hi World
+2021-03-12T18:15:47.513Z - Yo World
+
+
+
+The Strategy pattern
+Si seleccionas líneas de la transcripción en esta sección, irás a la marca de tiempo en el vídeo
+- [Instructor] One of the most powerful and most dynamic design patterns is the strategy. The strategy pattern let's you create multiple algorithms for a specific task and then dynamically decide upon which algorithm to use at run time. An example of a common place that the strategy pattern is used is with payment processing. We could build a shopping cart and checkout process that only let's users make purchases via a credit card. In this case the checkout process would always use the same algorithm, the credit card payment. We could also modify the checkout process to implement a strategy. This means that we decouple how to handle payments from the process itself. Now we can add different strategies for handling payments. We could add a credit card strategy and a PayPal strategy and then let the user decide which one to use dynamically at run time. The cool thing about strategies is that we can add new strategies as the need occurs and our application grows without ever having to touch the checkout process directly. We simply create a new payment strategy. For instance later on we can add a bitcoin payment strategy to the checkout process without ever having to change the code in the checkout process directly. The Gang of Four defines a strategy as a family of algorithms, encapsulate each one, and make them interchangeable. Strategy let's the algorithm vary independently from the clients that use it. Let's take a look at our exercise files chapter four lesson 10 and within our files you'll see the logger.js that contains the logger class that we created earlier in this course. Take a look at our logger class. Every time we log a message it writes the message to the console along with the timestamp of when the log occurred. This is hard coded directly into the log method of the logger. What if I wanted to only log the message itself or write the logs to a file instead of the console. What if I didn't want to record any logs at all. The logger in it's current state does not give me any options. I want the logger to be able to implement different strategies, different ways of dealing with logging. I also want to be able to change the strategy dynamically at run time and have the logger handle my log messages differently upon my request. Let's take a look at what the strategy pattern might look like if we were to use it. Inside of the index.js file you can see that we are using the logger here and we have a couple logs, we're logging hello world, hi world, and yo world. So right now if we go ahead and run this application. So if I come to the terminal and type node index.js we see hello world, hi world, and yo world produced by the logger with the timestamp to the console. I want the logger to be able to implement different strategies, different ways for dealing with logging. I also want to be able to change the strategy dynamically at run time and have the logger handle my log messages differently. The strategy pattern would allow us to change the logging strategy dynamically, perhaps based off of a user preference, environment, or input. We can do so by adding a method called change strategy to the class that implements the strategy pattern. So I'm going to go ahead and grab logger.change strategy. We could for instance change the way the logger handles the logs, we could have them write to file by using the to file strategy. So at this point after line seven any other logs that we create would be logged to the file instead of to the console. If we can change the strategy at run time this also means that we can set the strategy with a configuration file. So if we wanted to we could go over to our start folders and add a new file and we'll call it config.json and within one configuration file we can decide how the logger should log at run time without having to touch any of the code base. I can add a logs node to this file, which we would assume would give us configuration information on how the logger should work and I'll also add a strategy field. Let's say we didn't want to see the date and timestamp whenever we have a log. We can add a log strategy for that called no date. So this in theory would start off our application by using the log strategy called no date and if we take a look at that logs three, four, and five from our index.js would be logged without the date to the console. On line seven we change the strategy dynamically as our application is running to file. So logs nine, 10, and 11 can be logged to file. This is a pretty powerful pattern. In the next lesson we will get under the hood of the logger.js to implement the strategy pattern. We'll also make sure that we have a two file strategy for adding the logs to a file and a no date strategy for taking the date timestamp away from the logs when we present them to the user.

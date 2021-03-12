@@ -1,0 +1,135 @@
+
+
+its an structural pattern
+
+The Builder pattern
+
+"Separate the construction of a complex object from its representation so that the same construction process can create different representations"
+
+Separar la construcción de un objeto complejo de su representación para que el mismo proceso de construcción pueda crear diferentes representaciones.	
+
+es un creational pattern.
+
+
+var Person = require('./Person')
+
+// Employees
+var sue = new Person('Sue', true, true, 60);
+var bill = new Person('Bill', true, false, 20);
+var phil = new Person('Phil', true, false);
+
+// Shoppers
+var charles = new Person('Charles', false, false, 0, 500, ['jeans', 'sunglasses']);
+var tabbitha = new Person('Tabbitha', false, false, 0, 1000);
+
+Aqui se tiene una sola clase "person", pero conceptualmente se manejan diferentes tipos de 
+argumentos segun el subtipo. en estos casos los subtipos son employees y shoppers.
+
+este codigo asi es confuso. se resuelve asi:
+
+var PersonBuilder = require('./PersonBuilder');
+
+// Employees
+var sue = new PersonBuilder('Sue').makeEmployee().makeManger(60).build();
+var bill = new PersonBuilder('Bill').makeEmployee().makePartTime().build();
+var phil = new PersonBuilder('Phil').makeEmployee().build();
+
+// Shoppers
+var charles = new PersonBuilder('Charles')
+    .withMoney(500)
+    .withList(['jeans', 'sunglasses'])
+    .build();
+
+var tabbitha = new PersonBuilder('Tabbitha').withMoney(1000).build();
+
+y person.js es asi
+
+class Person {
+
+    constructor(name, isEmployee=false, isManager=false, hours=40, money=0, shoppingList=[] ) {
+        this.name = name
+        this.isEmployee = isEmployee;
+        this.isManager = isManager;
+        this.hours = hours;
+        this.money = money;
+        this.shoppingList = shoppingList;
+    }
+
+    toString() {
+        return JSON.stringify(this);
+    }
+
+}
+
+module.exports = Person;
+
+
+se construye un personBuilder:
+
+var Person = require('./Person');
+
+class PersonBuilder {
+
+    constructor(name) {
+        this.name = name;
+    }
+
+    makeEmployee() {
+        this.isEmployee = true;
+        return this;
+    }
+
+    makeManager(hours=40) {
+        this.isManager = true;
+        this.hours = hours;
+        return this;
+    }
+
+    makePartTime(hours=20) {
+        this.hours = hours;
+        return this;
+    }
+
+    withMoney(money) {
+        this.money = money;
+        return this;
+    }
+
+    withList(list=[]) {
+        this.shoppingList = list;
+        return this;
+    }
+
+    build() {
+        return new Person(this);
+    }
+
+}
+
+module.exports = PersonBuilder y recibe a builder como constructor;
+ 	
+y person queda asi:
+
+
+class Person {
+
+    constructor(builder) {
+        this.name = builder.name
+        this.isEmployee = builder.isEmployee;
+        this.isManager = builder.isManager;
+        this.hours = builder.hours || 0;
+        this.money = builder.money || 0;
+        this.shoppingList = builder.shoppingList || [];
+    }
+
+    toString() {
+        return JSON.stringify(this);
+    }
+
+}
+
+module.exports = Person;
+
+
+Si seleccionas líneas de la transcripción en esta sección, irás a la marca de tiempo en el vídeo
+- [Narrator] If you are in the market for a house, you could buy a standard house that was assembled at a factory. However, if you want choices, if you want customization, if you don't want a standard house that was assembled at a factory, then you'll need to hire a contractor or a builder. The home builder may have different questions for you. How many bedrooms would you like? How many bathrooms? Do you want a garage? What materials should we use? You get a custom house by answering the builder's questions. And software, the builder pattern serves much the same purpose. You can use it when you want to customize instances of the objects that you will create. Specifically, the builder pattern is used when you need to break down the construction of a complex object into separate concerns. The gang of four define the intent of the builder pattern as separating the construction of a complex object from its representation so the same construction process can create different representations. The builder pattern is a solution to specific kind of problem, a specific kind of anti-pattern named a telescoping constructor. So let's take a look at how we can implement the builder pattern in JavaScript. So I'm looking at my exercise files under chapter two, lesson seven within the start folder. My main client for the application is our index.js file. And if I look at this file, we can see that we're using this person class to construct two different types of people, employees and shoppers. This is fine, but the issue is that we're sending all of these arguments to the constructor to create the variations of these people. As a developer, I have no idea what sue, true, true, 60 means when we create Sue on line four. In order to understand what those arguments mean, I might have to go look at the person class itself. And here we can see that we have a constructor that takes in many different arguments. So by sending true as the second argument, Sue is an employee, and by sending true as the third argument, we're sending Sue as manager. We have hours, money, and shopping list optionally after that. So this problem here is an anti-pattern called the telescoping constructor. And the issue is, is whenever we have a constructor that has too many arguments, it can become confusing to understand what those arguments are later in our code. So, let's take a look at how the builder pattern can solve this problem. Instead of using a person class directly, we're going to create a class called the person builder. And the person builder is going to be used to create instances of objects. So let's take a look at how we would create Sue with the person builder. So we'll create a new instance of Sue, and instead of using the person, we're going to use the person builder. We'll pass the name to the builder and now that true means that Sue is an employee. So instead of adding a true, I'm actually going to call make employee on the builder. And the second true means that Sue is a manager. So we'll just call make manager on the builder. And the 60 is the 60 hours a week that Sue is expected to work. And now we'll do a dot build chained onto that and we'll create a new instance of Sue. So we can see here that using a builder makes far more sense to developers. I can see that Sue is an employee, that she's a manager with 60 hours a week, and we have an instance of a person that was created using the builder. I'm going to go ahead and modify the rest of this code to use the person builder, so we'll also have Bill, and Phil, and instead of having these extra arguments here, we'll just go ahead and chain the stuff on, so Bill is an employee as well, and Bill is going to be a part time employee and also we will build that instance using the builder. And Phil is also an employee. So we can also use our person builder to create instances of shoppers too. I'm going to go ahead and create Charles side by side so that we can see how we can improve the construction of this instance with a builder. So Charles is going to equal a new person builder, and instead of sending false and false, because Charles is not an employee or a manager, we'll just skip all of that. We'll give Charles some money 'cause he's a shopper and we'll also give Charles a list. And the list that Charles gets is right here, this array of jeans and sunglasses. But now we know specifically that's a shopping list for Charles. Finally, we have to add the build right here on the end. Now this is becoming too much code to fit on one line, that's fine, we can actually add these chain functions onto their own line. And again, we actually get to see that we have to find Charles in a more declarative manner So this makes more sense when we're instigating Charles using the builder than it does on line 14. So we'll get rid of that and then we'll also use the person builder for Tabbitha. And Tabbitha will also have money. Yeah, we'll give Tabbitha 1,000. Great. So this is how we can use a builder to improve our code. In the next lesson, we're actually going to implement a person builder class.

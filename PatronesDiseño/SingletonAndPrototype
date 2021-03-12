@@ -1,0 +1,349 @@
+Desing Parters Node Js
+
+Singleton Pattern:
+
+Ensure a class only has one instance, and provide a global point of access to it
+Asegúrese de que una clase solo tenga una instancia y proporcione un punto de acceso global a ella.
+
+es asegurarse que no se creen instancias innecesariamente. si la logica de tu programa no lo requiere se debe crear una
+sola instancia de una clase. es comun q se cometa el error de crear instancias sin requerirse. esto no genera problemas 
+en la logica del programa pero si congestionan la memoria ademas q hacen el codigo mucho mas redundante e inentendible.
+si estan esas lineas innecesarias, eliminarlas puede ser demasiado costoso en pruebas.
+
+
+si teniamos esta clase:
+
+class Logger {
+
+    constructor() {
+        this.logs = [];
+    }
+
+    get count() {
+        return this.logs.length;
+    }
+
+    log(message) {
+        const timestamp = new Date().toISOString();
+        this.logs.push({ message, timestamp });
+        console.log(`${timestamp} - ${message}`);
+    }
+
+}
+
+module.exports = Logger;
+
+y se tiene esta aplicacion:
+
+var Logger = require('./Logger');
+var Shopper = require('./Shopper');
+var Store = require('./Store');
+
+var logger = new Logger();
+
+logger.log('starting app...');
+
+var alex = new Shopper('alex', 500)
+var ski_shop = new Store('Steep and Deep Supplies', [
+    {
+        item: 'Downhill Skis',
+        qty: 5,
+        price: 750
+    },
+    {
+        item: 'Knit Hat',
+        qty: 20,
+        price: 5
+    }
+])
+
+logger.log('finished config...');
+
+console.log(`${logger.count} logs total`);
+logger.logs.map(log => console.log(`   ${log.message}`));
+
+
+shopperjs: aqui se crea una nueva instancia
+
+var Logger = require('./Logger');
+
+var logger = new Logger(); // aqui se crea una nueva instancia
+
+class Shopper {
+
+    constructor(name, money=0) {
+        this.name = name;
+        this.money = money;
+        logger.log(`New Shopper: ${name} has ${money} in their account.`);
+    }
+
+}
+
+module.exports = Shopper;
+
+en store.js tambien:
+
+var Logger = require('./Logger');
+
+var logger = new Logger(); // aqui se vuelve a crear
+
+class Store {
+
+    constructor(name, inventory=[]) {
+        this.name = name;
+        this.inventory = inventory;
+        logger.log(`New Store: ${name} has ${inventory.length} items in stock.`);
+    }
+
+}
+
+module.exports = Store;
+
+funciona pero se tienen instancias que se pueden evitar y el codigo queda mas limpio.
+
+se puede solucionar asi:
+
+class Logger {
+
+    constructor() {
+        this.logs = [];
+    }
+
+    get count() {
+        return this.logs.length;
+    }
+
+    log(message) {
+        const timestamp = new Date().toISOString();
+        this.logs.push({ message, timestamp });
+        console.log(`${timestamp} - ${message}`);
+    }
+
+}
+
+class Singleton {
+
+  constructor() {
+      if (!Singleton.instance) {
+          Singleton.instance = new Logger();
+      }
+  }
+
+  getInstance() {
+      return Singleton.instance;
+  }
+
+}
+
+module.exports = Singleton;
+
+exportando una clase que crea la instancia solo cuando es necesario. en este caso una vez.
+
+entocnes asi el index.js quedaria asi:
+var Logger = require('./Logger');
+var Shopper = require('./Shopper');
+var Store = require('./Store');
+
+var logger = new Logger().getInstance();
+
+logger.log('starting app...');
+
+var alex = new Shopper('alex', 500)
+var ski_shop = new Store('Steep and Deep Supplies', [
+    {
+        item: 'Downhill Skis',
+        qty: 5,
+        price: 750
+    },
+    {
+        item: 'Knit Hat',
+        qty: 20,
+        price: 5
+    }
+])
+
+logger.log('finished config...');
+
+console.log(`${logger.count} logs total`);
+logger.logs.map(log => console.log(`   ${log.message}`));
+
+
+
+
+shopper.js:
+
+var Logger = require('./Logger');
+
+var logger = new Logger().getInstance();
+
+class Shopper {
+
+    constructor(name, money=0) {
+        this.name = name;
+        this.money = money;
+        logger.log(`New Shopper: ${name} has ${money} in their account.`);
+    }
+
+}
+
+module.exports = Shopper;
+
+y store.js:
+
+var Logger = require('./Logger');
+
+var logger = new Logger().getInstance();
+
+class Store {
+
+    constructor(name, inventory=[]) {
+        this.name = name;
+        this.inventory = inventory;
+        logger.log(`New Store: ${name} has ${inventory.length} items in stock.`);
+    }
+
+}
+
+module.exports = Store;
+
+
+
+The singleton problem
+Si seleccionas líneas de la transcripción en esta sección, irás a la marca de tiempo en el vídeo
+- [Instructor] Sometimes you need to make sure that you have one and only one instance of an object. This is where the singleton pattern can be useful. A singleton represents a single instance of an object. Only one can be created, no matter how many times the object is instantiated. If there's already an instance, the singleton will create a new one. Let's take a look at where creating multiple instances of one object might create problems within our application. If you go to your exercise files for chapter two, lesson one, within the Start folder you will notice that there is a logger.js file. Within this file, we create a class called Logger. The idea is that we want our application modules to use this logger class instead of using console log directly. This logger saves information about all of the logs that are sent to it and it also logs each message with a timestamp. So once we create an instance of this object we can use the log method, send it a message, and it will log the timestamp and the message to the terminal as well as save information about that log. We also have a store.js file. Now if you look at this file we actually use the Logger. On line one, we import the Logger class, and on line three we create a new instance called Logger so that we can actually use this class. So on line 10, within the store constructor we will log a new message every time a store is created. So it says New Store and it gives us the name of the store and how many items are in stock. We also have a shopper.js file. And if you take a look at the shopper.js file it also uses the Logger, and on line 3 it creates its own instance of the Logger. So, whenever we create new shoppers on line 10 within the constructor, we will log a message to the console that says a new shopper has been created, this is their name and this is how much money they have in their account. Finally, the index.js, the main entry point for our application. Within our index.js, we are also using the Logger. On line one we import the class, and on line five we create our third instance of the Logger. Now, this file also uses the store and shopper classes and on line nine we create a new instance of a shopper and on line 10 we'll create a new instance of a store. Now notice on line seven, we are sending messages to the Logger. So, on line seven we're going to log the message starting app and on line 23 we're also going to log the message finished config. Now down here on line 25 of this file we're using console log just to dump some debugging information. So here we'll see how many messages have been saved inside of our Logger instance and on line 26 we'll actually log each of those messages by mapping the logs array. So, the Logger instance stores an array called logs. We're going to map over each item in that array, and we're going to log the message that's saved there to the console. Let's go ahead and go out to our console and run this application. So if we run node index.js, and again I am in chapter two, lesson two one within the start folder, we will notice that we see four logs. So we see our main application, log, starting the app along with its timestamp. We see that a new shopper has been created, a new store has been created, and then our main application has also finished running the configuration. The problem is, is because we have three instances of the Logger, we're only looking at the information for the main instance. So in our debugging information down here we see two logs total and those logs are only starting app and finished config. Now the reason is, is whenever we looking at the current Logger instance, we're only looking at the instance that was created within our main application. Not the instance that was created within the shopper and the store. When we have this type of a problem a singleton can really come in handy.
+
+
+CREATIONAL PATTERNS:
+
+Prototype Pattern:
+
+Specify the kinds of objects to create using prototypical instance, and create new objects by copying  this prototype
+Especifique los tipos de objetos para crear usando una instancia prototípica y cree nuevos objetos copiando este prototipo.
+
+Cuando un objeto se crea con valores por default entonces se recomienda crear una replicacion de los datos que siempre son los
+mismos con una pieza unica que es invocada para realizaro. En node se recomienda realizar un metodo clone en la classe
+el cual crea estos datos "por default" y se complementa con los otros que no son comunes a todos los objetos.
+
+var Shopper = require('./Shopper');
+
+var alex = new Shopper('Alex Banks');
+alex.addItemToList('camping knife');
+alex.addItemToList('tent');
+alex.addItemToList('backpack');
+alex.addItemToList('map');
+alex.addItemToList('slingshot');
+
+var eve = new Shopper('Eve Porcello');
+eve.addItemToList('camping knife');
+eve.addItemToList('tent');
+eve.addItemToList('backpack');
+eve.addItemToList('map');
+eve.addItemToList('reading light');
+
+console.log( `${alex.name}: ${alex.shoppingList}` );
+console.log( `${eve.name}: ${eve.shoppingList}` );
+
+aqui se ven los items camping knife, tent, backpack,map que son comunes en las nuevas instancias cuando se crea un shopper
+se comienda entonces generar un modulo tipo "constructor" que cree estos items por default y reutilizarlo. con esto
+no se ve codigo repetido.
+
+en este caso se crea un modulo y se exporta ,la instancia para ser utilizado:
+observar que se adicionan los items comunes(llamado por ejemplo scout_prototype.js).
+
+var Shopper = require('./Shopper');
+
+var scout = new Shopper();
+scout.addItemToList('camping knife');
+scout.addItemToList('tent');
+scout.addItemToList('backpack');
+scout.addItemToList('map');
+
+module.exports = scout;
+
+entonces se importa scout_prototype.js y se ejecuta un metodo clone() de la classe que replica estos items por default.
+y posteriormente se adicionan los datos que no son comunes.
+
+
+var scout_prototype = require('./scout_prototype');
+
+var alex = scout_prototype.clone();
+alex.name = 'Alex Banks';
+alex.addItemToList('slingshot');
+
+var eve = scout_prototype.clone();
+eve.name = 'Eve Porcello';
+eve.addItemToList('reading light');
+
+console.log( `${alex.name}: ${alex.shoppingList}` );
+console.log( `${eve.name}: ${eve.shoppingList}` );
+
+el metodo clone esta aqui construido de la siguiente manera:
+
+class Shopper {
+
+    constructor(name='unnamed person') {
+        this._name = name;
+        this._shoppingList = [];
+    }
+
+    set name(value) {
+        this._name = value;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get shoppingList() {
+        return this._shoppingList.join(', ');
+    }
+
+    addItemToList(item) {
+        this._shoppingList.push(item);
+    }
+
+    clone() {
+        var proto = Object.getPrototypeOf(this);
+        var cloned = Object.create(proto);
+
+        cloned._name = this._name;
+        cloned._shoppingList = [...this._shoppingList];
+
+        return cloned;
+    }
+
+}
+
+module.exports = Shopper;
+
+
+
+
+
+
+The Prototype pattern
+Si seleccionas líneas de la transcripción en esta sección, irás a la marca de tiempo en el vídeo
+- [Teacher] When I was growing up, I noticed that the layout of our house was very similar to the layout of several of my friend's houses. They were the same size, they had the exact same floor plan and they were all made of the same materials. We essentially lived in the same house, but each house had customizations that made it different. It seemed like whatever company that built these houses had a pattern they can follow to make them more efficient by using the same materials and blueprints. Each house was essentially a clone or a copy of a master design. Sometimes we face the same challenge in software development. We might spend a lot of time creating and setting up objects that are essentially the same. Let's take a look at the index.js file found in the start folder of our exercise files under chapter two, lesson four. We'll notice that we are using a shopper class to create two instances of shoppers. On line three, we create a shopper named Alex and on line 10, we create a shopper named Eve. Both of these shoppers actually have essentially the same list, so the process of setting up each shopper requires that we duplicate the same code. Both Eve and Alex have a camping knife, a tent, a backpack and a map. So what we can do is we can save time and reduce redundancy by implementing the prototype pattern. So to do so, I'm actually going to copy everything from line seven to line one. So we're going to copy the setup of the shopper Alex and then I'm going to create a new file called scout_prototype.js. We'll go ahead and paste this information here. So in the scout prototype, we will create a new shopper called a scout and we will add all of these items to the scout's list. We'll also remove the scout's name because we're going to use this instance of this object to create multiple scouts. So the last thing that I want to go ahead and do here is export our scout object. So now we have an object that we set up that has a camping knife, tent, backpack and map already in their shopping list. Let's go back to the index.js and use this item to improve our code. So instead of importing a shopper, we're going to import the scout prototype, prototype. And now instead of creating Alex using the shopper, what we're going to do is use the scout prototype. And by using the scout prototype's clone method, we create an exact clone of the scout prototype in its current state. That means that Alex already has all of these items on their shopping list. And I can simply add a slingshot to my shopping list. Now I do have to give this instance a name, so we'll say Alex.name equals Alex Banks and we want to do the same thing for Eve, so I'm going to go ahead and copy our scout_prototype.clone call and set Eve using that call too. So, the instance of Eve will again be the scout prototype at it's current state, so we'll go ahead and get rid of that list because Eve will automatically have it and the name Eve Porcello. So you can see that we've improved our code, we've eliminated the redundancy. If we had very complicated objects to set up this could save us a lot of time. Now unfortunately we aren't ready to run this code yet because we haven't implemented the clone method. In the next lesson, we're going to go ahead and add the clone method to our shopper class, so that we can use the prototype pattern to speed up the way that we create instances of shopper objects.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,108 @@
+its an structural pattern
+
+The Adapter pattern
+
+
+"convert the interfaces of a class into another client expect. Adapter lets classes work together that couldn't otherwise because of incompatible interfaces"
+
+convertir las interfaces de una clase en otra espera del cliente. El adaptador permite que las clases trabajen juntas que de otra manera no podrían debido a interfaces incompatibles
+
+ADAPTAR un objeto para que funcione en diferentes ambientes. ejemplo un codigo de JS
+que no corre en node porque hay objetos q crea el navegador que en node no existen.
+
+console.log( "localStorage length: ", localStorage.length );
+
+var uid = localStorage.getItem("user_id");
+
+console.log( "user_id: ", uid );
+
+if (!uid) {
+    console.log('User ID not found. Setting the user id and token...');
+    localStorage.setItem("token", "TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ");
+    localStorage.setItem("user_id", "12345");
+} else {
+    console.log('User ID found.', uid);
+    console.log('clearning the User ID...');
+    localStorage.clear();
+}
+
+
+en este caso localStorage genera error al ejecutarse en NODE.
+
+"console.log( "localStorage length: ", localStorage.length );
+                                      ^
+
+ReferenceError: localStorage is not defined"
+
+entonces se hace un adapter en node:
+
+se hace un modulo localStorage.js y se importa
+
+var localStorage = require('./localStorage');
+
+console.log( "localStorage length: ", localStorage.length );
+
+var uid = localStorage.getItem("user_id");
+
+console.log( "user_id: ", uid );
+
+if (!uid) {
+    console.log('User ID not found. Setting the user id and token...');
+    localStorage.setItem("token", "TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ");
+    localStorage.setItem("user_id", "12345");
+} else {
+    console.log('User ID found.', uid);
+    console.log('clearning the User ID...');
+    localStorage.clear();
+}
+
+y el localstorage.js queda como sigue:
+
+var { writeFile, existsSync, readFileSync, unlink } = require('fs');
+
+class LocalStorage {
+
+    constructor() {
+        if (existsSync('localStorage.json')) {
+            console.log('Loading items from localStorage.json');
+            var txt = readFileSync('localStorage.json');
+            this.items = JSON.parse(txt);
+        } else {
+            this.items = {};
+        }
+    }
+
+    get length() {
+        return Object.keys(this.items).length;
+    }
+
+    getItem(key) {
+        return this.items[key];
+    }
+
+    setItem(key, value) {
+        this.items[key] = value;
+        writeFile('localStorage.json', JSON.stringify(this.items), error => {
+            if (error) {
+                console.error(error);
+            }
+        })
+    }
+
+    clear() {
+        this.items = {};
+        unlink('localStorage.json', () => {
+            console.log('localStorage file removed');
+        })
+    }
+
+}
+
+module.exports = new LocalStorage();
+
+
+
+Si seleccionas líneas de la transcripción en esta sección, irás a la marca de tiempo en el vídeo
+- [Instructor] We're going to take a look at the adapter by looking at a real world analogy, a skateboard. A skateboard is a wooden board with wheels. There's a grippy surface that you stand on, but you're not attached to it. If you're good at skateboarding, you might know how to do an ollie or a kick-flip. These are tricks where you jump in the air with your board and hope to land on it. Let's say you wanted to transfer your skateboarding skills to a different surface, other than concrete. Let's say you wanted to skateboard on snow. You're probably thinking you'll need a snowboard. But are they really the same? You can't kick-flip a snowboard, because you're always attached to it. There's no grippy surface that you stand on. Recently a new snow sport has popped up called snow skating. A snow skateboard is a wooden board with a grippy surface that you stand on, but instead of wheels, its trucks are mounted on skis. If you already know how to skate, you can immediately apply those skills to a snow skate. You can kick-flip a snow skate because you're not attached to it. A snow skate is simply a skateboard that's been adapted to ride on snow instead of concrete. To the user, the board works and feels the same. They can use it the way they already use a skateboard. In software, an adapter serves the same purpose. It's when you take an object, keep its interface, but adapt it to a new environment or solution. Adapters make incompatible classes become compatible. The Gang of Four defines the intent of an adapter as converting the interface of a class into another interface that clients expect. Adapters lets classes work together that couldn't otherwise because of incompatible interfaces. Let's take a look at this example with some JavaScript. I'm inside of the exercise files under Chapter Three, Lesson One within the start folder. One problem that you might have is you might already have some code that is designed to work in a particular environment, or with a particular tool, but you want the exact same code to work in a different environment or with another object to accomplish the same task. Maybe you have some JavaScript written by web developers that is designed to run in the browser, but you want the exact same code to work in a Node.js environment. In the index.js file found in the start folder, there's an example of some JavaScript that saves and reads data from local storage, a browser API that is not available in Node. If I go to the console and run this file, you'll see that I get an error, local storage is not defined. That's because there is no local storage API within Node.js. In the next lesson, we will build an adapter that will allow this code to run in a Node.js environment.
+
+

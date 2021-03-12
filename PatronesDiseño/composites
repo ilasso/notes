@@ -1,0 +1,96 @@
+structural pattern
+
+Composites pattern:
+
+Compose objects into tree structures to represent part-whole hierachies. Composite lets clients treat individual objects and compositions of objects uniformly
+
+Componga objetos en estructuras de árbol para representar jerarquías de parte y todo. Composite permite a los clientes tratar objetos individuales y composiciones de objetos de manera uniforme
+
+index.js:
+var CatalogItem = require('./CatalogItem');
+var CatalogGroup = require('./CatalogGroup');
+
+var boots = new CatalogItem("Leather Boots", 79.99);
+var sneakers = new CatalogItem("Kicks", 39.99);
+var flipFlops = new CatalogItem("California work boots", 19.99);
+
+var group_shoes = new CatalogGroup("Shoes and Such", [boots, sneakers, flipFlops]);
+
+var group_food = new CatalogGroup("Food for while you try on clothes", [
+    new CatalogItem("Milkshake", 5.99),
+    new CatalogItem("French Fries", 3.99)
+]);
+
+var keychain = new CatalogItem("Key Chain", .99);
+
+var catalog = new CatalogGroup("Clothes and Food", [keychain, group_shoes, group_food]);
+
+console.log(`$${catalog.total}`);
+
+catalog.print();
+
+CatalogItem.js:
+
+class CatalogItem {
+
+    constructor(name, price) {
+        this.name = name;
+        this.price = price;
+    }
+
+    get total() {
+        return this.price;
+    }
+
+    print() {
+        console.log(`${this.name} $${this.price} `);
+    }
+}
+
+module.exports = CatalogItem;
+
+
+
+
+CatalogGroup.js:
+
+class CatalogGroup {
+
+    constructor(name, composites=[]) {
+        this.name = name;
+        this.composites = composites;
+    }
+
+    get total() {
+        return this.composites.reduce((total, nextItem) => total + nextItem.total, 0);
+    }
+
+    print() {
+        console.log(`\n${this.name.toUpperCase()}`);
+        this.composites.forEach(item => item.print());
+    }
+    
+}
+
+module.exports = CatalogGroup;
+
+output:
+
+$150.94
+
+CLOTHES AND FOOD
+Key Chain $0.99 
+
+SHOES AND SUCH
+Leather Boots $79.99 
+Kicks $39.99 
+California work boots $19.99 
+
+FOOD FOR WHILE YOU TRY ON CLOTHES
+Milkshake $5.99 
+French Fries $3.99 
+
+
+Implementing composites
+Si seleccionas líneas de la transcripción en esta sección, irás a la marca de tiempo en el vídeo
+- [Instructor] In the last lesson, we defined the composite design pattern, and we took a look at a place where it might be useful, a catalog. So I'm under the exercise files for chapter three, lesson six, and we're looking at our start folder. So these files, we created a few catalog items, and in the last lesson we also created a catalog group. We didn't actually program the catalog group class, so let's go ahead and do that. Let's go to our start folder, and create a new file, and we'll call it catalog group. And, inside of our catalog group file, what we want to do is make sure that our class for our catalog group, which will represent our branch, implements the same interface that our class for the catalog item would implement, so we want to make sure that we have a total, getter, so our catalog group will allow us to get a total, and a print method, so we can also print all of the details for our catalog group. And we'll go ahead and export our class. And if we look at our index.js file, when we create a new catalog group, we're expecting the name of the catalog group, as well as a list of catalog items, or other catalog groups. So let's go ahead and add the constructor, so we'll add a name, and we will set this instance's name, based on the value that is sent to the constructor. Now, the second value that we're sending here is an array, in this case it's just of boots, sneakers and flip flops, but the key to this is that this array can be catalog items, or other catalog groups. So we're going to refer to this value as composites. These are our composites, and we will also set a composites value on the instance. Now, when we want the total cost of an entire catalog group, we will loop through our composites, using the reduce method to tally the total. So, let's go ahead and return, this.composites.reduce. So the reduce method is going to be used to reduce the entire array to a single numeric value, the total of all of the values, that are stored within this array. So, the second argument of the reduce method is going to be our starting total, which is zero, and then, the first argument is a function, which takes in the total, as well as the next item. And what we're going to do is we're going to take that total, and we're going to add it to the next item's total. And this method will actually loop through all of our composites, using the total field, and it will tally them up, it will add each value to the total, and we should return one number, which will be the total for the entire group. Let's go ahead and implement the print method. Now, the same idea is true for the print method. In a group, we want to print all of the items that are saved under our composites. So the first thing we're going to do is just log the name of the group. We'll do a little new line, and then this.name, and we'll also convert it to uppercase, so that we can see that pretty clearly, and now, we also want to make sure that we print every item, or other catalog group that's saved in our composites. So, we'll add this.composites, for each to loop through all of 'em, and we will invoke the print on the item. And again, this print method can be for an individual item, or an entire group, we are treating both of these types uniformly. So let's go ahead and save this, and see if our index file where we created our group shoes works. We can go out to the console, we can go out to our terminal and node index.js, and we can see that we are printing our catalog group. So shoes and such, the print method is working, and we see leather boots, kicks, and California work boots are saved in that group. So let's go ahead and enhance our client code a little more. The idea behind catalogs is because we are treating both items and groups uniformly, this will allow us to compose tree structures. So before I create an entire catalog, I want to create another group. I'm going to create a group for food, and this will be a new catalog group, and we will call this group, food for while you try on clothes, so this store has some food for while you are trying on your clothes. So we'll go ahead and do a new catalog item, and we could just add these items directly to the array that we're sending to the catalog group constructor, so the first item I'm going to add is a new catalog item called milkshake, and we'll make sure that's 5.99, and then we'll also add another catalog item for some fries, and we will make those 3.99. Additionally, I'm going to create just a random item, like a key chain, so this is something that you could sell at the counter of a store, but I just want one item on its own, so we can compose a tree. So additionally I'm going to create a one-off item, like a key chain, that we can just add to our catalog, without having to add it to a group. The next thing I'm going to go ahead and do is just remove all of the printing that we've currently been doing to the console, and I'm going to go ahead and create my entire catalog. Now, the catalog itself is also a catalog group, so it's a branch, this is just the root branch, and we will name the entire catalog for this store Clothes and Food. And, this is the real fun part, when we add the composites, they can be catalog items, but they can also be catalog groups. So here, our entire catalog consists of a key chain, a group of shoes that has three shoes, and a group of food that has two food items. So let's go ahead and check our catalog's price, so we'll go ahead and log the catalog price, just by getting the total, and let's go ahead and print our catalog. And we should print the entire catalog, and see the entire tree. So, I'll go ahead and clear this out. Node index.js, and now we can see that the total for all of the items in our catalog is 150 dollars and 94 cents, and then, when we print the catalog, we notice that our catalog is called Clothes and Food, we print the key chain item, and then we print the entire group, shoes and such, so we see the name for the shoes and such, and we print all of the items in that group, and then we come back out and print the other entire group for food for while you try on clothes. So the neat thing about composites, is it allows us to compose trees, where we treat the branches and the leaves of the tree, in a uniform manner.

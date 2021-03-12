@@ -1,0 +1,149 @@
+Behavioral pattern:
+
+Chain of responsability Pattern:
+
+"Avoid coupling the sender of a request to its receiver by giving more than one object 
+a change to handle the request.
+chain the receiving objects and pass the request along the chain."
+
+Evite vincular el remitente de una solicitud a su receptor dando más de un objeto
+un cambio para manejar la solicitud.
+encadenar los objetos receptores y pasar la solicitud a lo largo de la cadena.
+
+index.js
+var Store = require('./Store');
+var inventory = require('./inventory');
+
+var skiShop = new Store('Steep and Deep', inventory);
+
+var searchItem = 'powder skis';
+var results = skiShop.find(searchItem);
+
+console.log( results );
+
+
+store.js
+
+var Storage = require('./Storage');
+
+class Store {
+
+    constructor(name, inventory=[]) {
+        this.name = name;
+
+        var floor = new Storage('store floor', inventory.floor);
+        var backroom = new Storage('store backroom', inventory.backroom);
+        var localStore = new Storage('nearby store', inventory.localStore, 1);
+        var warehouse = new Storage('warehouse', inventory.warehouse, 5);
+
+        floor.setNext(backroom);
+        backroom.setNext(localStore);
+        localStore.setNext(warehouse);
+
+        this.storage = floor;
+
+        console.log(floor);
+
+    }
+
+    find(itemName) {
+        return this.storage.find(itemName);
+    }
+
+}
+
+module.exports = Store;
+
+
+storage.js
+
+class Storage {
+
+    constructor(name, inventory=[], deliveryTime=0) {
+        this.name = name;
+        this.inventory = inventory;
+        this.deliveryTime = deliveryTime;
+        this.next = null;
+    }
+
+    lookInLocalInventory(itemName) {
+        var index = this.inventory.map(item => item.name).indexOf(itemName);
+        return this.inventory[index];
+    }
+
+    setNext(storage) {
+        this.next = storage;
+    }
+
+    find(itemName) {
+        var found = this.lookInLocalInventory(itemName);
+        if (found) {
+            return {
+                name: found.name,
+                qty: found.qty,
+                location: this.name,
+                deliveryTime: (this.deliveryTime === 0) ? 'now' : `${this.deliveryTime} day(s)`
+            }
+        } else if (this.next) {
+            return this.next.find(itemName);
+        } else {
+            return `we do not carry ${itemName}`;
+        }
+    }
+
+}
+
+module.exports = Storage;
+
+iventory.json:
+
+{
+    "floor": [
+        { "name": "ski googles", "qty": 5 },
+        { "name": "ski hats", "qty": 15 },
+        { "name": "all mountain skis", "qty": 2 },
+        { "name": "ski boots", "qty": 2 }
+    ],
+    "backroom": [
+        { "name": "ski googles", "qty": 5 },
+        { "name": "ski hats", "qty": 15 },
+        { "name": "ski poles", "qty": 2 },
+        { "name": "ski rack", "qty": 1 }
+    ],
+    "localStore": [
+        { "name": "ski boots", "qty": 2 },
+        { "name": "ski poles", "qty": 4 },
+        { "name": "wax", "qty": 8 }
+    ],
+    "warehouse": [
+        { "name": "ski googles", "qty": 100 },
+        { "name": "ski hats", "qty": 100 },
+        { "name": "all mountain skis", "qty": 10 },
+        { "name": "ski boots", "qty": 20 },
+        { "name": "ski poles", "qty": 20 },
+        { "name": "wax", "qty": 100 },
+        { "name": "powder skis", "qty": 10 },
+        { "name": "ski rack", "qty": 3 }
+    ]
+}
+
+
+output:
+
+{
+  name: 'powder skis',
+  qty: 10,
+  location: 'warehouse',
+  deliveryTime: '5 day(s)'
+}
+
+
+Chain of responsibility
+Si seleccionas líneas de la transcripción en esta sección, irás a la marca de tiempo en el vídeo
+- [Instructor] Think about ordering a sandwich from your favorite sub shop. The first thing that you might be asked to select is the bread. Then you might have to select the meat. Followed by the cheeses. Followed by the vegetables. And finally to the condiments. You're sandwich gets made on an assembly line. The steps that go into making that sandwich are ordered. And you can claim the sandwich at any point in the process. If you only want meats and cheeses, then the sandwich doesn't need to complete the rest of the steps on line. You can just take it and eat it. This analogy is similar to the Chain of Responsibility design pattern. This pattern allows us to chain together objects to handle a request. A request is sent to an object to handle it and then that handler could process the request and return a result, or it could pass the request on to the next handler. Which could return a result or pass the request on to the next handler. All the way down the chain until you get to the last handler, which will always return some sort of result. The Gang of Four defines the intent of the Chain of Responsibility as, avoid coupling the sender of a request and its receiver by giving more than one object a chance to handle the request. Chain the receiving objects and pass the request along the chain until an object handles it. Let's take a look at some code that we can help improve off the Chain of Responsibility design pattern. I'm looking at our exercise files in Chapter four. Chapter four, lesson one. And within the start folder we already have some files. So take a look at the index.js file. So we are using the Store and we are pulling our inventory data from an adjacent document. On line four, when we instantiate a ski shop, we send it the inventory that's on the floor at the store. So we can search for an item like ski hats. If I come over here to the terminal to run this, node index.js, we can see that we find that item and that we have 15 of 'em. The inventory is actually coming from the inventory json data document. And you can see that we have more options than just the floor. We have the floor, the back room, a local store, and the warehouse. So if a user wants to find an inventory item, we should actually search all of these places. For instance, if I change our index to search for ski poles and then run the application, I get an undefined. Meaning we can't find ski poles on the floor, but we haven't searched the other locations. We can modify the Store to use the Chain of Responsibility design pattern to improve the Store's find method. Let's go ahead and take a look at how that would work. First, in the index.js, we need to send the entire inventory catalog to the store, not just the items on the floor. And now, we're sending the entire catalog of inventory that's available to the ski store to the actual Store instance. In the Store, I'm going to import a new class called Storage. So now in the Store's constructor, as opposed to just setting up an inventory for the store, we are going to set up several storage locations using our new objects. We'll have the floor, and we'll pass it the inventory that is found on the floor. We're also going to have a back room, and we'll pass it the inventory for the back room. That's all lower case. We also have a local store that we can search if we cannot find you're item on the floor or in the back room. And then finally, we have a warehouse. Which is the last location we will search for an item and if we can't find the item there, then the store simply doesn't carry it. Now the thing about getting inventory items from a local store or a warehouse, is that might take some time. So I'm going to add another argument here, which is the time and days it might take your inventory item to reach our store if it's found in another store. That will only take one day to get it here from a local store. We're going to assume that it will take five days to get it to this store from the warehouse if we happen to find the item there. So now we'll set this storage, the storage for this store, to the floor. So that's the first place we're going to look for items. And then I can take the floor and call set next and set the next place to look for items, which would be the back room. And I can take the back room and call set next, which will be the next place we'll look for items, which will be the local store. And the local store we can set next on this object to look in the warehouse. And the next thing that we want to do is modify the find method. So instead of returning an item from this store's inventory, what we're going to try to do is find that item in storage. So we will return this.storage.find item name. Great, so this is how we can use the Chain of Responsibility design pattern. The first request will be piped through several storage objects until the inventory item is found. In the next lesson, we'll go ahead and implement the code that's necessary for the storage class.
+
+
+Implementing the storage class
+Si seleccionas líneas de la transcripción en esta sección, irás a la marca de tiempo en el vídeo
+- [Instructor] In the last lesson, we added code to the store to use a storage class that implements the chain of responsibility design pattern. In this lesson, we'll code the storage class so that we can search for inventory items in multiple locations. I'm inside of the exercise files for chapter four, chapter four lesson two, and I'm inside of the start folder. Within this folder I'm going to go ahead and add a new file called storage.js. And in our storage file I'm going to go ahead and create a new class, storage, and we'll go ahead and give it a constructor. And this class will take in the name of the storage location and also the inventory for that location. And then finally we also are taking in a delivery time. And I am going to default the delivery time to zero and the inventory to an empty array in case those values are not sent. Those this.name is going to equal our name, this.inventory is going to equal our inventory, and this.deliverytime will equal the delivery time. And then finally we're going to set up another variable. And the next variable that we're going to set up is this.next. So this is going to point to the next storage location that we should search if the inventory isn't found in the current one. Right now I'm going to set this to null, because we don't have a next value. So now I'm going to add a set next method to my storage class, and the set next is going to expect another storage class. So this.next is going to be equal to the storage object that was sent to the set next method. And then finally we're going to need to implement a fine. And we're looking for items in the inventory by name. So what I'm going to do to find inventory items is I'm going to create a new method called look in local inventory. And for look in local inventory we're going to find the item much like we were looking for the item in the store. That's by locating the index of the item, if we have one, by taking this.inventory, which remember, inventory consists of arrays of items, so we have a name and a quantity on those items. So we're going to take this.inventory and we're going to map it, we're going to create a new array of just the item name. So this will give me an array of all of the item names, all of the string names that are found in this location's inventory. And then I can use the index of to just grab the one that matches our item. And what I'm going to go ahead and do is now use the index to return the item. So if we have an item it will get returned from the look in local inventory. If we don't have the item we will return it undefined from look in local inventory. So the next thing we're going to do is we're going to modify our find method to first look in the local inventory. So I'm going to create a variable called found, and to find the item I'm going to look in our local inventory. And I'll just pass at the item name that's sent to this storage's find method. So if we find the item, what we're going to want to do is return it. Otherwise we're going to want to look in the next location. So if we do have an item that we found in the local inventory, let's just go ahead and return it. So name and quantity are the main data points for the item, but the nice thing about he storage object is we can also add some information about where we found the item, like it's location. And we found the item in this.name, so this storage location is where the item was found. We can also add how long it will take the item to get there, so delivery time. And we'll do a little if statement for this, so if this.deliverytime is equal to zero then we will go ahead and return the string now. So meaning, if there's no days for delivery time, we can tell the customer that they can get the item now. Otherwise what we're going to go ahead and do is return this.deliverytime, and I will go ahead and add to this string days. So now we're sending the delivery time as a string, and the delivery time is either going to be now or a certain number of days. Now here's the thing. If we don't find an item in the local inventory for this storage object, then we want to look into the next inventory if there is one. So what we're going to go ahead and do is actually add an else if here. And if this storage object has a next object, then we want to make sure we look there. So I'm going to go ahead and return this.next.find item name. Now if this storage object doesn't have a next item and we haven't found the item itself, what we want to do is return a string saying that we don't carry this item. Because we cannot find it in any of the storage locations at this point. So this is our storage object, and remember, the store chains together the storage objects using the set next methods. So line eight to 11, we create new storage locations, and then lines 13 through 15, we chain those storage locations together. So finding an item will start with the current store's find method, but it will look through all of these storage locations. Let's take a look at our index.js file. So now, if we're looking for the item ski poles, which previously returned an undefined in the last lesson, let's go ahead and see if we can find it. Node index.js. And it looks like we cannot find our storage constructor, so I think I made my favorite mistake to make all the time, which is forgetting to export storage from the storage.js module. So I'm going to go ahead and export that, and then we can try our code again. Clear out the screen and then node index.js. And it looks like we found our ski poles. Where did we find them? In the store's backroom. When can we have these ski poles? Now. So let's go ahead and search for another item inside of our index.js. We can do our previous search for ski hats. And we can come out and run the file. And we can see that we have 15 ski hats on the store floor. We can also get those items now. Let's search for something that's not within this store. So I'm going to go ahead and search for wax, and if we look at the inventory we can see that we don't have ski wax in the floor or in the backroom, but we do have some in the local store. So let's see what our results return. And we can see that we have found it in the local store and it will take one day to get here. Finally, let's search for something that we only have in the warehouse, which is powder skis. And if we go search for powder skis and run our application, we can see that we have 10 powder skis, but they're located in the warehouse so it will take them five days to get here. So all of this is possible because the store itself implements storage, and the storage object implements the chain of responsibility design pattern.
+

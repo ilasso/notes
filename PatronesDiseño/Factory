@@ -1,0 +1,64 @@
+The Factory pattern
+
+Define an interface for creating an object but let subclasses decide which class to instanciate. Factory method lets a class defer instanciation to subclasses.
+
+var Shopper = require('./Shopper');
+var Employee = require('./Employee');
+
+var alex = new Shopper('Alex Banks', 100);
+var eve = new Employee('Eve Porcello', 100, 'This and That');
+
+console.log( alex.toString() )
+console.log( eve.toString() )
+
+aqui en esta aplicacion hay dos clases q parecen similares, tienen el nombre y un valor
+es posible q se tengan otras siminares como Distribuidores, Conductores, gerentes, desarrolladores.
+
+Entocnes se tendria una clase por cada uno y un mantenimiento de codigo por cada una.
+
+ser crea un modulo userFactory:
+
+var Employee = require('./Employee');
+var Shopper = require('./Shopper');
+
+var userFactory = (name, money=0, type, employer) => {
+    if (type === 'employee') {
+        return new Employee(name, money, employer);
+    } else {
+        return new Shopper(name, money);
+    }
+}
+
+module.exports = userFactory;
+
+en el se tiene una funcion q evalula el tipo de "persona" a crear.
+
+entocnes la aplicacion index.js quedaria asi:
+llamando a una sola "clase" y pasandole el tipo o subtipo que quiero crear. en este caso employee.
+var userFactory = require('./userFactory');
+
+var alex = userFactory('Alex Banks', 100);
+var eve = userFactory('Eve Porcello', 100, 'employee', 'This and That');
+
+eve.payDay(100);
+
+console.log( alex.toString() );
+console.log( eve.toString() );
+
+
+
+
+
+
+
+
+
+
+
+
+Defina una interfaz para crear un objeto pero deje que las subclases decidan qué clase instanciar. El método de fábrica permite que una clase difiera la instanciación a subclases.
+
+
+Si seleccionas líneas de la transcripción en esta sección, irás a la marca de tiempo en el vídeo
+- In the real world, factories create products. An auto factory creates cars, a phone factory creates phones, and a chemical factory would create chemicals. Each of these factories create many variations of their product. The auto factory can create cars, trucks, SUVS, all different types of vehicles. If we want a truck, the factory will build it for us. In JavaScript, we also have different types of objects that we may need to instantiate. We can improve our code by encapsulating all of the constructors into a single module and creating a function that will will create the objects for us. This design pattern is called the factory method and the gang of four defined it as "define an interface for creating an object, but let subclasses decide which class to instantiate. Factory Method lets a class defer instantiation to subclasses. Let's take a look at how all of this works within JavaScript. Within our exercise files, under chapter 2, chapter 2 lesson 6, inside of the start folder, I'm looking at the index.js file. Now this would represent main client application and within this file I'm using two classes directly, the shopper and the employee. On line 4 and 5, we're creating a couple user instances, one of them is a shopper and the other one is an employee. Now using these constructors directly within my client is okay, but problems may start to emerge as my application expands. Let's say I come up with even more types of users: distributors, drivers, managers, developers. Now keeping track of all the constructors required to create all of these different object types can become a little bit chaotic, so that's where the factory method can help us out. Instead of using these classes directly within our client application, we're going to use a factory method instead, so I can import something called the user factory. And instead of using the instances to create instances of my users, I'll actually let the factory decide which type of user to create. So this one will create Alex Banks, and this one will create Eve Porcello, who is an employee. I'll also want to let the factory method know that this is an employee. So, by sending a few arguments to this one method, we will get it to return the right type of instance. Let's go ahead and add the factory method to our code. So I'm going to come over to the start folder and add a new file and this is our user factory.js. And now within our user factory, this is where we will actually use all of the classes required to create objects. So we need an employee and we also need a shopper, those are the two types that we have now. And we're also going to create a user factory function and we'll use an arrow function to do that and we'll make sure that this module exports our user factory. Great, so now we have a function that we can use to create object instances for us. Now this function's going to take in some arguments, specifically the name of the user to create, how much money they have, what type of user we're supposed to be creating, and optionally an employer, if they are an employee. And we'll use this information to decide which type of object to return. So if type is equal to employee, then we'll return a new employee, with the name, money, and employer that was passed to our method. Otherwise, we'll just return a new shopper with the name and the money that was passed to this method. Great, now we have a factory method that can create employees or shoppers. Let's go ahead and see if it works. I'm going to go into the terminal and run our index.js and we can see that we've created Alex Banks with some money. but Alex Banks is just a shopper, so he's not employed. And we also have Eve Porcello and Eve has some money as well and she is employed. The employer is this and that and we can go back to our client file. Because Eve is employed, we have a slightly different type of object, we can give Eve a pay day. So we'll add 100 to Eve's money using the payday method. We can come back out here to the terminal and run our application again. And we can see here that Eve now has 200 dollars and is still employed. So the benefit of using the factory method is it encapsulates everything that we need to create users within one method. Later on, if we expand, we can actually create different types of users from this same method, so if the need to create a distributor came along - Now I currently do not have a distributor class that we can use, but this is an example of how the factory method can be beneficial to helping our applications as they grow and change.
+

@@ -1,0 +1,137 @@
+Behavioral pattern:
+
+Iterator pattern:
+
+
+
+"Provide a way to access the elements of an aggregate object sequentially without exposing its 
+underlyng representarion"
+
+Proporcionar una forma de acceder a los elementos de un objeto agregado secuencialmente sin exponer su
+representación subyacente
+
+index.js:
+
+var InventoryItem = require('./InventoryItem');
+var Iterator = require('./Iterator');
+
+require('readline').emitKeypressEvents(process.stdin);
+process.stdin.setRawMode(true);
+
+console.log('Press any direction key...');
+
+var inventory = new Iterator([
+    new InventoryItem("Poles", 9.99),
+    new InventoryItem("Skis", 799.99),
+    new InventoryItem("Boots", 799.99),
+    new InventoryItem("Burgers", 5.99),
+    new InventoryItem("Fries", 2.99),
+    new InventoryItem("Shake", 4.99),
+    new InventoryItem("Jeans", 59.99),
+    new InventoryItem("Shoes", 39.99)
+]);
+
+process.stdin.on('keypress', (str, key) => {
+
+    process.stdout.clearLine();
+    process.stdout.cursorTo(0);
+
+    switch(key.name) {
+
+        case 'right' :
+            inventory.next().writeLn();
+            break;
+
+        case 'left' :
+            inventory.prev().writeLn();
+            break;
+
+        case 'down' :
+            inventory.last().writeLn();
+            break;
+
+        case 'up' :
+            inventory.first().writeLn();
+            break;
+
+        case 'c' :
+            if (key.ctrl) {
+                process.exit()
+            }
+    }
+
+});
+
+
+inventoryItem.js
+
+class InventoryItem {
+
+    constructor(name, price) {
+        this.name = name;
+        this.price = price;
+    }
+
+    writeLn() {
+        process.stdout.write(`${this.name}: $${this.price}`);
+    }
+
+}
+
+module.exports = InventoryItem;
+
+
+iterators.js
+
+class Iterator {
+
+    constructor(items=[]) {
+        this.index = 0;
+        this.items = items;
+    }
+
+    first() {
+        var [first] = this.items;
+        return first;
+    }
+
+    last() {
+       var [last] = [...this.items].reverse();
+       return last;
+    }
+
+    hasNext() {
+        return this.index < this.items.length - 1;
+    }
+
+    current() {
+        return this.items[this.index];
+    }
+
+    next() {
+        if (this.hasNext()) {
+           this.index += 1;
+        }
+        return this.current();
+    }
+
+    prev() {
+        if (this.index !== 0) {
+            this.index -= 1;
+        }
+        return this.current();
+    }
+
+}
+
+module.exports = Iterator;
+
+
+
+
+
+
+The Iterator pattern
+Si seleccionas líneas de la transcripción en esta sección, irás a la marca de tiempo en el vídeo
+- [Instructor] The iterator is a very common design pattern. It gives us a uniform interface for interacting with lists, collections, arrays, or any type of aggregate object. Iterators are designed to work with collections of data. They give us a clear way to access the first data record, and then they give us a way to iterate through the rest of the rows within our data set. It doesn't matter what type of data you're working with, iterators give us a clear way to iterate through any collection. The Gang of Four defines the intent of the iterator as providing a way to access the elements of an aggregate object sequentially without exposing its underlying representation. Let's take a look at some code. Within the exercise files, under chapter four, lesson six within the start folder, we have a couple of files already set up. We have an inventoryitem.js, which has the class definition for an inventory item. Inventory items just have a name and a price, and they also have a writeline method that will write that name and price to standard output. We also have an index.js file, and before we look at the code of this, let's just go ahead and run it so that we can see what it does. So if I run this file, node index.js, you can see that was see a message that says press any direction key. Now as I press the arrow keys, we get to see what the last arrow key that I pressed was. Notice that we're not doing this with console.log. We're actually overwriting the last thing that we've written to the console, so that might be left or right or up or down. Let's go ahead and stop this application and come back to the code. So within the index.js, we do include the inventory item class, and we also set up an array of inventory items on line eight. We'll come back to that in a minute. Also on lines three and four, we set up standard input to listen for key press events through readline. If we go down to line 19, we can see where we actually handle a key press event, and lines 21 and 22 clear the line and move the cursor to zero so that we can replace the text that was printed to the last line. We're also checking the key.name in a switch statement and each of these cases respond to a specific arrow key. So right now, all we're doing is writing right, left, down, or up to standard output. What we want to do is when the user presses right, we want them to iterate to the next inventory item within this array. If the user presses left, we want them to iterate to the previous item. And up should take us to the first item of the array, and down should take us to the last item. Now clearly, we know how to work with arrays well enough to actually just handle this directly in the handler. We could save the current index to a variable and then use that to iterate through the array. However, an iterator provides a uniform interface for iterating through any collection, so what we're going to do is we are going to create an iterator that we can use with this array of inventory items. Let's take a look at what I mean by adding some code to this file. So what we're going to do is we're going to create iterator class, and I'm going to import it here. And then, instead of saving inventory to an array, we are actually going to make this an instance of our iterator class. And now the iterator is going to give us a way to iterate through this array without having to worry about the mechanics of dealing with an array. So let's go down to where we press the right key, and instead of pressing the right key, what we're going to do is type inventory.next. The idea here is that inventory.next will return one instance of an inventory item, the next one that we're supposed to be looking at. I'm going to go ahead and just chain on the writeLn, call to this next. Because we have an inventory item, we can use its writeline method to go ahead and write the name and price of that item. I'll go ahead and copy this line because when the user presses the left key, we'll do something pretty similar. Instead of calling inventory.next, we'll just call inventory.prev. This will give us the previous inventory item. We're going to do the same thing for the down case, so whenever the user presses the down arrow, I will get the last inventory item, and whenever the user presses the up arrow, I will go ahead and get the first inventory item. So this is how iterators are designed to make managing your collection, any collection, less complicated. In the next lesson, we will implement the iterator class and make this application work.
+

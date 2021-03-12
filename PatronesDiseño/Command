@@ -1,0 +1,245 @@
+Behavioral pattern:
+
+Command pattern:
+
+"Encapsulate a request as an object , thereby letting you parametrize
+with diferent request, queue or log requests, and support undoable operations"
+"Encapsular una solicitud como un objeto, lo que le permite parametrizar
+con diferentes solicitudes de solicitud, cola o solicitudes de registro, y admite operaciones que se pueden deshacer"
+
+index.js:
+
+var conductor = require('./conductor');
+var { ExitCommand, CreateCommand } = require('./commands');
+
+var { createInterface }  = require('readline');
+var rl = createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+console.log('create <fileName> <text> | exit');
+rl.prompt();
+
+rl.on('line', input => {
+
+    var [ commandText, ...remaining ] = input.split(' ')
+    var [ fileName, ...fileText ] = remaining
+    var text = fileText.join(' ')
+
+    switch(commandText) {
+
+        case "exit":
+            conductor.run(new ExitCommand());
+            break;
+
+        case "create" :
+            conductor.run(new CreateCommand(fileName, text));
+            break;
+
+        default :
+            console.log(`${commandText} command not found!`);
+    }
+
+    rl.prompt();
+
+});
+
+se crea un conductor.js:
+
+class Conductor {
+
+    run(command) {
+        console.log(`Executing command: ${command.name}`);
+        command.execute();
+    }
+
+}
+
+module.exports = new Conductor();
+
+command.js:
+
+var { writeFile } = require('fs');
+var path = require('path');
+
+class ExitCommand {
+
+    get name() {
+        return 'exit... bye!';
+    }
+
+    execute() {
+        process.exit(0);
+    }
+
+}
+
+command.js
+
+class CreateCommand {
+
+    constructor(fileName, text) {
+        this.fileName = fileName;
+        this.body = text;
+        this.fullPath = path.join(__dirname, fileName);
+    }
+
+    get name() {
+        return `create ${this.fileName}`;
+    }
+
+    execute() {
+        writeFile(this.fullPath, this.body, f => f);
+    }
+
+}
+
+module.exports = { ExitCommand, CreateCommand };
+
+TODO ESTO MEJORADO E INCLUYENDO UNDO Y REDO:
+
+index.js:
+
+var conductor = require('./conductor');
+var { ExitCommand, CreateCommand } = require('./commands');
+
+var { createInterface }  = require('readline');
+var rl = createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+console.log('create <fileName> <text> | history | undo | redo | exit');
+rl.prompt();
+
+rl.on('line', input => {
+
+    var [ commandText, ...remaining ] = input.split(' ')
+    var [ fileName, ...fileText ] = remaining
+    var text = fileText.join(' ')
+
+    switch(commandText) {
+
+        case "history":
+            conductor.printHistory();
+            break;
+
+        case "undo":
+            conductor.undo();
+            break;
+
+        case "redo":
+            conductor.redo();
+            break;
+
+        case "exit":
+            conductor.run(new ExitCommand());
+            break;
+
+        case "create" :
+            conductor.run(new CreateCommand(fileName, text));
+            break;
+
+        default :
+            console.log(`${commandText} command not found!`);
+    }
+
+    rl.prompt();
+
+});
+
+
+conductor.js:
+
+class Conductor {
+
+    constructor() {
+        this.history = [];
+        this.undone = [];
+    }
+
+    run(command) {
+        console.log(`Executing command: ${command.name}`);
+        command.execute();
+        this.history.push(command);
+    }
+
+    printHistory() {
+        this.history.forEach(command => console.log(command.name));
+    }
+
+    undo() {
+        var command = this.history.pop();
+        console.log(`undo ${command.name}`);
+        command.undo();
+        this.undone.push(command);
+    }
+
+    redo() {
+        var command = this.undone.pop();
+        console.log(`redo ${command.name}`);
+        command.execute();
+        this.history.push(command);
+    }
+
+}
+
+module.exports = new Conductor();
+
+
+command.js:
+
+var { writeFile, unlink } = require('fs');
+var path = require('path');
+
+class ExitCommand {
+
+    get name() {
+        return 'exit... bye!';
+    }
+
+    execute() {
+        process.exit(0);
+    }
+
+}
+
+class CreateCommand {
+
+    constructor(fileName, text) {
+        this.fileName = fileName;
+        this.body = text;
+        this.fullPath = path.join(__dirname, fileName);
+    }
+
+    get name() {
+        return `create ${this.fileName}`;
+    }
+
+    execute() {
+        writeFile(this.fullPath, this.body, f => f);
+    }
+
+    undo() {
+        unlink(this.fullPath, f => f);
+    }
+
+}
+
+module.exports = { ExitCommand, CreateCommand };
+
+
+
+
+The Command pattern
+Si seleccionas líneas de la transcripción en esta sección, irás a la marca de tiempo en el vídeo
+- [Instructor] With the command pattern, commands are objects that contain all of the data necessary to execute a specific action on the client. Think about boxes of furniture that need to be assembled. Each box contains all of the parts necessary along with the instructions on how to assemble that piece of furniture. A professional installer can open a box, follow the instructions and use the materials to assemble the furniture. The installer doesn't need to know how to build each piece of furniture. It doesn't matter to them because the instructions of how to build the furniture come with the box. The installer can open a box, follow the instructions and assemble the furniture; and then they can move on to the next box. In this analogy I like to think of each furniture package as a command. They are all different, they contain different parts and different instructions. The installer can execute a command. They can follow the instructions, use the materials and complete the task. The Gang of Four defines the intent of the command pattern as encapsulating a request as an object, thereby letting you parameterize clients with different requests, queue or log requests, and support undoable operations. Let's take a look at some code where we can incorporate a command pattern. So I'm inside of our Exercise Files folder, under Chapter 4, Chapter four, Lesson three, and within the Start folder you can see that we already have quite a bit of code. So let's go ahead and run this code just to see what's happening and come over to the terminal, node index.js from this location. And you can see we have a little application here that's prompting the user to enter a couple commands. We can enter an Exit command and its says To Do, actually exit the application. We can also enter this Create command. So we can create a file like hello.txt Hello World. So what we want this command to allow us to do is create a new text file called hello.txt and add Hello World to the contents of that text file. And again, you'll see it says To Do, create text file hello.txt and the file contents, Hello World. So if I go ahead and exit out of this with Ctrl-C I'll go ahead and clear the terminal for later. We can come back over to the code and let's briefly talk about what's happening. So we're building the prompt using the create interface method from read line. And our process standard input and process standard output is going to be our interface. And on line eight we are adding our first prompt. Whenever the user enters any text we go ahead and handle it with this line event. So the input comes in as their text. And lines 12-14 are just a matter of parsing that text to find the command and the actual file name or a file text that would go into that command. And then, finally, we have a switch statement where we are ready to run our commands. So if we run an Exit, we've left ourselves a little to do for adding an Exit command; and if we run a Create, we've left ourselves a little to do for running a Create command. So we've already parsed the file name and the text that would go into the file that needs to be created for you. And then finally, if you don't run either of these commands, we're just letting you know that we don't know what you're trying to do. The command text that you've sent is not found. So what we're going to do is we're actually going to run these commands using the command pattern. So let's take a look at what that might look like by adding the code to this file. So I'm going to go ahead and go to the top. The first thing that I need to bring in is something to run the command. I'm going to call that the Conductor. And we are going to go ahead and pull in the Conductor from the conductor.js file. And then I'm going to go ahead and pull in a few commands. I'm just going to put all of the commands in the same file so I can de-structure them. I'm going to pull out the Exit command and I'm going to go ahead and pull out the Create command. So these are the two things that we need to be able to do, exit the application and create a new file. So we will package everything that we need to execute these commands into the command classes themselves. So everything we need to run an Exit will be found in the Exit command, and everything we need to create a new file is found in the Create command. And we will put both of these in a file called commands.js. So using these commands will look a little something like this. We can come down here for the Exit command and we can just tell the Conductor to run a new Exit command. And this should cause us to actually exit the application. We can also come down here to the Create command and we can tell the Conductor to run a new Create command. And here's the neat thing, the Create command is going to create a file so the file name should be sent to it's constructor. That's the file name we want to create and the text should also be sent to the constructor because that represents the contents that we want to create within that file. So, in this example of what we just typed, we can see how we can use the command pattern. One of the best things about this pattern is that it is completely extensible. If we have a need for new commands, we can simply create a new command objects and run them with the conductor. In the next lesson, we will write the code for each command class, along with the conductor, so that this application will work.
+
+
+
+
+
+Implementing commands
+Si seleccionas líneas de la transcripción en esta sección, irás a la marca de tiempo en el vídeo
+- [Instructor] In the last lesson we introduced the command pattern and we saw how we can incorporate that pattern into an already existing node app that implemented a read line interface. In this lesson, we're going to implement the conductor that we're importing, as well as each command class that we're importing online, too. So I'm in the exercise files, under chapter four lesson four, within the start folder. And I'm going to go ahead and create a new file called commands.js. And I'm going to go ahead and put all of my command classes within this file. So we're going to need to create a class for the exit command and we're also going to need to create one for create command. And then I'm just going to make sure that I export both of these. Great, so now we have both classes and we're ready to export them. Let's go ahead and write the code for our exit command. So I'm going to write a getter to get the name of this command. So we'll just go ahead and return a string. This is an exit command, and we'll go ahead and add a bye to that. Now each command must implement an execute method, and that's where we're actually going to write the code to execute this command. So let's go ahead and execute. And for the exit command we're just going to go ahead and exit. And we'll go ahead and process.exit 0. So great, that's our exit command. Now before we actually write the code for the create command, let's go ahead and create the conductor and test our exit command. So I'm going to go ahead and add a new file. Conductor.js. And within the conductor we'll create a new class called conductor, and we'll make sure we export that class. And we'll make this a node js singleton, so we will export one instance of the conductor from this module. So we're going to make sure that we only have one conductor by exporting one instance of the conductor versus exporting the entire conductor class. So I'm going to go ahead and have a run method for the conductor. And the run method is going to expect a command. And then I'm just going to go ahead and log some information to the console, about which command we're actually running. And we will send the command name. And now we will actually execute command by invoking the execute method. So this is why each command needs an execute method. This is how we actually run the command. Let's go ahead and test it out. So I'm coming over to my terminal, and I will node index.js. And if we type exit, the conductor should run our exit command. And it does. And we can see the message executing command, exit, bye. So the first thing that we want to do is we need to require a few things. If we're going to create a new file we need the right file method from the file system. I'm also going to use the path module, so we need the path as well. Now in the create command object itself we're going to go ahead and add the constructor. Everything we need to create a file is being passed to this constructor already. So I'm going to go ahead and grab the file name and the text for the file within the constructor, and we'll set up some variables. This.fileName is going to be equal to the file name. This.body will be equal to the file text. And let's also set up a full path. This.fullPath is going to equal path.join. So we're going to take the current directory and we are going to add file name to it, creating the full path. Great, so that's everything that we need to create a brand new file. So I'm going to go ahead and also create a getter for the name, so that we know what command this is, and we're going to go ahead and return a create this.fileName. So we know that this command is to create the specific file that we're creating with this instance of the create command. So the next thing that we need is an execute method. And this is where we're actually going to create the file. So I'll go ahead and call it writeFile, and we'll go ahead and say this.fullPath. So that's the file that we're going to create. This.body, that's what we're going to write to the file. And then we need to have a callback function here. I'm not ready to code this callback function yet. We're going to do it in a later lesson. So what I'm going to put is just a placeholder function. It's a dummy function that I like to use. So f arrow f. All this function means is that it's just a function that returns whatever argument is sent to it, which is typically undefined. So it's just a placeholder function. So let's go ahead and save this and then see if our create command works. So I come back out to the terminal. Okay, now I will run the application. Node.index.js, and let's go ahead and try to create a file called hello.txt and we'll add Hello World to that file. Ad it says executing command create hello.txt. So it seems to have executed our command. Let's try it one more time. Create hi.txt, and we'll do Hi World in that one with one exclamation point. And it says that we've also executed that command. So if we go ahead and take a look at our file folder, we should see two text files. We have one, hello text and one hi text. So this is using the command pattern. Everything that we need to create a file, encapsulate it inside of this create command that we coded inside of the commands.js module. In the next lesson we're going to go ahead and improve our conductor class to see the full power that you can get out of using the command pattern.

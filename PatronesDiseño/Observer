@@ -1,0 +1,98 @@
+Behavioral pattern:
+
+Observer pattern:
+
+"Define a one-to-many dependecy between objects so that when one object changes state, all its
+dependents are notified and updated automatically"
+
+cuando se hace algo en un objeto se le notifica a los demas.
+
+
+
+index.js
+var Store = require('./Store');
+var Shopper = require('./Shopper');
+var Mall = require('./Mall');
+
+var catsAndThings = new Store("Cats & Things");
+var insAndOuts = new Store("Ins and Outs");
+
+var alex = new Shopper("Alex");
+var eve = new Shopper("Eve");
+var sharon = new Shopper("Sharon");
+var mike = new Shopper("Mike");
+
+var valleyMall = new Mall();
+
+catsAndThings.subscribe(alex);
+catsAndThings.subscribe(eve);
+catsAndThings.subscribe(mike);
+catsAndThings.subscribe(valleyMall);
+
+insAndOuts.subscribe(sharon);
+insAndOuts.subscribe(valleyMall);
+
+catsAndThings.sale(20);
+insAndOuts.sale(50);
+
+console.log( valleyMall.sales );
+
+Mall.js
+
+class Mall {
+
+    constructor() {
+        this.sales = [];
+    }
+
+    notify(storeName, discount) {
+        this.sales.push({ storeName, discount });
+    }
+
+}
+
+module.exports = Mall;
+
+
+shopper.js
+
+class Shopper {
+
+    constructor(name) {
+        this.name = name;
+    }
+
+    notify(storeName, discount) {
+        console.log(`${this.name}, there is a sale at ${storeName}! ${discount}% off everything!`);
+    }
+}
+
+module.exports = Shopper;
+
+
+Store.js
+
+class Store {
+
+    constructor(name) {
+        this.name = name;
+        this.subscribers = [];
+    }
+
+    subscribe(observer) {
+        this.subscribers.push(observer);
+    }
+
+    sale(discount) {
+        this.subscribers.forEach(observer => observer.notify(this.name, discount));
+    }
+
+}
+
+module.exports = Store;
+
+
+
+The Observer pattern
+Si seleccionas líneas de la transcripción en esta sección, irás a la marca de tiempo en el vídeo
+- [Instructor] The most common analogy for the observer design pattern is a newspaper subscription. Households can subscribe to particular newspapers. When a new paper is printed the news organization delivers that paper to all of its subscribers. The observer design pattern implements a similar approach. Objects, called observers, can watch other objects for state changes. These objects that can broadcast changes are known as observables. In this example, a stoplight is an observable object. Other objects can subscribe to the stoplight and watch it for state changes. For example, a bike, a car, a bus. They're all different types of objects, but they can all watch the stoplight object for changes and respond accordingly. When the state of the stoplight changes, say from red to green, it can notify every object that has subscribed to it of this state change. The key is that each observer object implements a method that the observable can invoke when there is a change. In this case it's the notify method. Observers are a very common design pattern, and they are extremely important to wrangling the asynchronous nature of node JS. The Gang of Four defines the intent of the observer pattern as, "Defining a one-to-many dependency between objects "so that when one object changes state, "all of its dependents are notified "and updated automatically." Let's take a look at some code. So I'm inside our exercise files in our exercise files under chapter 4, under chapter 4 lesson 8 within the start folder. We already have some objects created. We have a simple shopper class, that just saves the name of each shopper. We also have a mall class. It saves an array of sales. So the idea is we want the mall to keep track of any stores that have ongoing sales. That means that our store class can announce sales. So on line seven we have a method for announcing the sale. Now right now, all the store does when it announces a sale is log that information to the console. If you take a look at the index.js file, you'll notice that we've created two instances of stores, Cats & Things and Ins and Outs; and four instances of shoppers, Alex, Eve, Sharon, and Mike; and one instance of the mall, the Valley Mall. Now observers is really concerned about how all of these objects communicate with one another. Alex, Eve, Sharon, Mike and the Valley Mall need to listen for new sales at Cats & Things and Ins and Outs. Let's go ahead and add some code to implement the observer pattern. So I'm going to take the store Cats & Things and I'm going to subscribe a few observers. So we'll subscribe Alex and I will go ahead and copy this line and paste it a few more times. And we'll also subscribe Eve and Mike. Now, when we subscribe an object to Cats & Things, that means that that object can listen for the announcement of new sales. Now Cats & Things isn't concerned with the type of object that can listen for sales. Shoppers can listen for sales. But the mall can also listen for sales. So we will also subscribe the Valley Mall as an observer to Cats & Things. Let's go ahead and add some subscriptions to Ins and Outs. Ins and Outs can subscribe Sharon, and we also want Ins and Outs to subscribe the Valley Mall. So the idea is that the mall is going to listen to any new sale announcement, so that it can keep track of it. We should see what sales are going on by logging the Valley Mall sales field, and that should be the array of ongoing sales. The idea here is that the observer objects, the shoppers and the mall, will listen for state changes on the observables, Cats & Things and Ins and Outs. So what this means is, if we come up here above where we're listing the sales, and declare a few sales, so we can give Cats & Things a sale of 20% off everything or Ins and Outs a sale of 50% off everything. All of our observers should have been notified of these sales. That means Alex, Eve, Mike should be notified of the Cats & Things sale, Sharon should be notified of the Ins and Outs sale, and the Valley Mall should be keeping track of all of the sales. We want to run this code and have the observers be notified of any new sales that occur at the mall. Now before we can do that we must add the code to the observable object, the store, and the observers, the mall and the shopper. In the next lesson we will actually implement the observable design pattern by coding these objects.
