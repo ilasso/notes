@@ -1,0 +1,85 @@
+Al finalizar el curso el participante estará en la capacidad de:
+
+Identificar los términos y conceptos relacionados con la plataforma de AWS y explore la consola de administración de AWS.
+Comprender los servicios básicos, incluidos Amazon Elastic Compute Cloud (EC2), Amazon Virtual Private Cloud (VPC), Amazon Simple Storage Service (S3) y Amazon Elastic Block Store (EBS).
+Descubrir las medidas de seguridad de AWS y los conceptos clave de AWS Identity and Access Management (IAM).
+Conocer los servicios de base de datos de AWS, incluidos Amazon DynamoDB y Amazon Relational Database Service (RDS).
+Comprender las herramientas de administración de AWS, incluidas Auto Scaling, Amazon CloudWatch, Elastic Load Balancing (ELB) y AWS Trusted Advisor.
+Diseño e implementar infraestructuras en AWS.
+Identificar y solucionar los principales inconvenientes presentados en las arquitecturas convencionales por desplegar.
+Superar el examen AWS Solutions Architect - Associate
+
+
+El curso está dirigido a:
+
+Responsables de articular las ventajas técnicas de los servicios de AWS a los clientes.
+Personas interesadas en aprender a usar AWS.
+Arquitectos de soluciones que quieran usar los servicios de AWS.
+Personas que están preparándose para realizar el examen AWS Certified Solutions Architect – Associate.
+
+Para llevar el curso es recomendable que el participante posea:
+
+Conocimientos prácticos sobre los sistemas de distribución.
+Conocimiento de los conceptos generales sobre redes.
+Conocimientos prácticos sobre arquitecturas de varios niveles.
+Conocimiento de los conceptos de informática en la nube.
+
+Curso AWS Technical Essentials (7 horas cronológicas)
+
+Generalidades AWS, EC2, EBS y VPC
+AWS Technical Essentials, S3, IAM, RDS y Servicios Complementarios
+
+AWS Solutions Architect (46 horas cronológicas)
+Introducción
+Fundamentals
+Fundamentals VPC Y EC2
+Fundamentals EC2
+RDS
+BD
+Security
+Route53
+EBS
+Servicios complementarios
+
+
+
+
+technical essencials:
+
+Al finalizar el curso el participante estará en la capacidad de:
+
+Identificar los términos y conceptos relacionados con la plataforma de AWS y explorar la consola de administración de AWS.
+Comprender los servicios básicos, incluidos Amazon Elastic Compute Cloud (EC2), Amazon Virtual Private Cloud (VPC), Amazon Simple Storage Service (S3) y Amazon Elastic Block Store (EBS).
+Descubrir las medidas de seguridad de AWS y los conceptos clave de AWS Identity and Access Management (IAM).
+Conocer los servicios de base de datos de AWS, incluidos Amazon DynamoDB y Amazon Relational Database Service (RDS).
+Comprender las herramientas de administración de AWS, incluidas Auto Scaling, Amazon CloudWatch, Elastic Load Balancing (ELB) y AWS Trusted Advisor.
+
+
+El curso está dirigido a:
+
+Responsables de articular las ventajas técnicas de los servicios de AWS a los clientes.
+Personas interesadas en aprender a usar AWS.
+Administradores de SysOps, arquitectos de soluciones y desarrolladores que quieran usar los servicios de AWS.
+
+
+Para llevar el curso es recomendable que el participante posea:
+
+Conocimientos prácticos sobre arquitecturas de varios niveles.
+
+
+Generalidades AWS
+Historia y Generalidades AWS
+EC2 y EBS
+VPC
+
+
+S3
+IAM
+RDS Y Dynamo DB
+Servicios Complementarios
+
+
+
+
+
+

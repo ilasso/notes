@@ -1,0 +1,66 @@
+Node:
+
+interview: questions phone notes.
+
+read an practice this blog:
+https://javascript.plainenglish.io/node-js-developer-roadmap-for-2021-2ae9c057bff4
+
+https://javascript.plainenglish.io/7-concepts-you-should-know-as-a-javascript-developer-f406597319ab
+
+https://javascript.plainenglish.io/10-entry-level-react-interview-questions-5a8ea74e2130
+
+
+Design Patters
+
+Arrow Functions
+Types
+Expressions
+Functions
+Lexical Structures
+this
+Loops and Scope
+Arrays
+Template Literals
+Strict Mode
+ES6/ES7
+
+
+Timers
+Promises
+Closures
+The Event Loop
+Async programming and callbacks
+
+
+
+Node.js Basics
+Event Emitters: They are objects in Node.js that trigger events by sending a message to signal that an action was completed. We can also write our own code that listens to events from an event emitter. For example, if you have done some frontend work, then you probably know how much interaction we need to handle in our applications, such as mouse clicks, keyboard button presses, and other mouse movements. Similarly, on the backend environment in Node.js, we can build a similar system using the events module, which offers EventEmitter class which we use to handle our events.
+
+Callbacks: These are functions called when a task is completed, which prevents any kind of blocking while allowing the rest of the code to run in the meantime. As we have to work with a lot of asynchronous tasks in Node.js, we need them everywhere for making seamless and faster applications. For example,
+
+
+Buffers: A class called Buffer in Node.js is designed to handle raw binary data. They correspond to some raw memory allocated outside V8. Buffers are an array of integers that can’t be resized having a whole bunch of methods specifically for binary data. For example, the integers in buffer represent a byte with limited values from 0 to 255 inclusive, if you console.log() to print a Buffer instance, a chain of values in hexadecimal will be received.
+
+
+Module System: As a part of the Node.js ecosystem you will be using the Module for implementing complex functionality by just using the Modules provided by Node.js, these are JavaScript files that contain all the organized and complex features that anyone can reuse through the Node.js application.
+
+HTTP/HTTPS protocols: A fundamental knowledge of how the data is transferred using the transfer protocols will make you a better Node.js developer, a good understanding of how HTTP and HTTPS work is something every backend developer should understand well enough. HTTPS uses an encryption protocol known as Transport Layer Security (TLS)to encrypt communications. There is a lot to learn in the backend environment and it might get a little foggy for you if you had no idea how the web works, there are 4 request methods responsible for any basic communication on the web:
+GET: Used to retrieve a representation of a resource
+POST: Used to create new resources
+PUT: Used to update capabilities
+PATCH: Used to modify capabilities
+DELETE: Used to delete a resource identified by a URL
+OPTIONS: Request permitted communication option for a given URL or server
+
+
+Web Frameworks
+Note: All these web-frameworks are good to know, if you are building a personal project with Node.js then sticking with a single framework is recommeded, otherwise the learing path is quiet wide to cover.
+Express.js: Provides a very minimal interface and tools that are required to build our application, quite flexible to use, and comes with numerous modules available on npm which can be plugged directly into Express.
+Meteor.js: A great go-to framework for making JavaScript applications, comes with built-in MongoDB handlers with support for GraphQL. When you run the “meteor create myapp” and run it, an HTML/JavaScript web page is provided with a MongoDB backend. You can use Meteor.js as an effective alternative in your list of frameworks that helps you cut the development time with ease of maintenance. Otherwise, I will recommend sticking with Express if you are building a simple web app.
+Sails.js: An MVC framework allows you to quickly build REST APIs, single-page apps, and real-time apps. If you are looking to master some serious skills then Sails.js is highly recommended as you get many benefits with it, such as real-time support with WebSockets and it uses the “convention over configuration” approach.
+Koa.js: If you are looking to build robust applications that are future proof and easy to maintain then Koa.js is a good choice. A Koa application is an object containing an array of some middleware functions that are later executed in a manner of stacks.
+Nest.js: Inspired by Angular and built with TypeScript, uses Express.js under the hood which makes it compatible with most of Express middleware. You can build an efficient and scalable application with Nest.js as it provides a great modular structure for organizing code into separate modules.
+
+
+
+
